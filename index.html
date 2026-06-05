@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Field Script</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="p5.min.js"></script>
+    <script>const randomSeedEditArt = "EditART2025";</script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:           #0d0c0a;
+            --sidebar:      #141310;
+            --surface:      #1c1b18;
+            --surface-hi:   #232118;
+            --border:       #2a2824;
+            --text:         #c4bdb1;
+            --muted:        #52504a;
+            --dim:          #282622;
+            --accent:       #c8a470;
+            --accent-lo:    #8a7050;
+            --font:         'JetBrains Mono', 'Courier New', monospace;
+        }
+
+        html, body {
+            height: 100%;
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font);
+            font-size: 11px;
+            overflow: hidden;
+        }
+
+        /* ── LAYOUT ─────────────────────────────── */
+
+        .app {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* ── SIDEBAR ────────────────────────────── */
+
+        .sidebar {
+            width: 212px;
+            flex-shrink: 0;
+            background: var(--sidebar);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .sidebar-head {
+            padding: 18px 16px 14px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-title {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--accent);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+
+        .sidebar-sub {
+            font-size: 9px;
+            color: var(--muted);
+            letter-spacing: 0.08em;
+        }
+
+        .sidebar-body {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .sidebar-body::-webkit-scrollbar { width: 2px; }
+        .sidebar-body::-webkit-scrollbar-track { background: transparent; }
+        .sidebar-body::-webkit-scrollbar-thumb { background: var(--dim); }
+
+        .sidebar-footer {
+            border-top: 1px solid var(--border);
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        /* ── SECTIONS ───────────────────────────── */
+
+        .section { padding: 10px 0 4px; }
+
+        .section-label {
+            padding: 0 16px 6px;
+            font-size: 8px;
+            font-weight: 500;
+            letter-spacing: 0.16em;
+            color: var(--muted);
+            text-transform: uppercase;
+        }
+
+        /* ── CONTROL ROWS ───────────────────────── */
+
+        .ctrl {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 5px 16px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-family: var(--font);
+            color: var(--text);
+            gap: 8px;
+            text-align: left;
+            transition: background 0.1s;
+            outline: none;
+        }
+
+        .ctrl:hover { background: var(--surface); }
+        .ctrl:active { background: var(--surface-hi); }
+
+        .ctrl-name {
+            flex: 1;
+            font-size: 10px;
+            color: var(--muted);
+            letter-spacing: 0.01em;
+        }
+
+        .ctrl-val {
+            font-size: 10px;
+            color: var(--text);
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        /* Active state — accent value text */
+        .ctrl.on .ctrl-val,
+        .ctrl[data-active="true"] .ctrl-val { color: var(--accent); }
+
+        /* ── RULE ───────────────────────────────── */
+
+        .rule {
+            height: 1px;
+            background: var(--border);
+            margin: 4px 16px;
+        }
+
+        /* ── ACTION BUTTONS ─────────────────────── */
+
+        .act-row {
+            display: flex;
+            gap: 5px;
+        }
+
+        .act {
+            flex: 1;
+            padding: 6px 0;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            color: var(--muted);
+            font-family: var(--font);
+            font-size: 9px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.12s;
+            outline: none;
+        }
+
+        .act:hover {
+            border-color: var(--accent-lo);
+            color: var(--text);
+            background: var(--surface-hi);
+        }
+
+        .act.primary {
+            border-color: var(--accent-lo);
+            color: var(--accent);
+        }
+
+        .act.primary:hover {
+            border-color: var(--accent);
+            background: var(--surface-hi);
+        }
+
+        /* ── STAGE ──────────────────────────────── */
+
+        .stage {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg);
+            padding: 24px;
+            overflow: hidden;
+        }
+
+        #canvas-container canvas { display: block; }
+    </style>
+</head>
+<body>
+
+<script>
+    parent.postMessage({ editArtTemplateVersion: 1337 }, "*");
+    window.capturePreview = false;
+    function triggerPreview() {
+        window.capturePreview = true;
+        window.parent.postMessage({ type: "sketch-loaded" }, "*");
+    }
+
+    let m0 = Math.random().toFixed(3), m1 = Math.random().toFixed(3),
+        m2 = Math.random().toFixed(3), m3 = Math.random().toFixed(3),
+        m4 = Math.random().toFixed(3);
+    let randomM0, randomM1, randomM2, randomM3, randomM4, randomEditArt;
+
+    const queryString = window.location.search;
+    if (queryString) getParams(queryString);
+    seedPRNG();
+
+    function getParam(urlParams, p) {
+        const param = urlParams.get(p);
+        if (param && /^0\.\d{3}$/.test(param)) return parseFloat(param);
+        document.write(""); window.stop && window.stop();
+        throw new Error(`Invalid parameter: ${p}=${param}`);
+    }
+    function getParams(qs) {
+        const u = new URLSearchParams(qs);
+        m0 = getParam(u,"m0"); m1 = getParam(u,"m1"); m2 = getParam(u,"m2");
+        m3 = getParam(u,"m3"); m4 = getParam(u,"m4");
+    }
+    window.addEventListener("message", e => {
+        if (e.data.hasOwnProperty("editartQueryString")) {
+            getParams(e.data["editartQueryString"]);
+            seedPRNG();
+            clear();
+            document.querySelectorAll("canvas").forEach(el => el.remove());
+            setup(); draw();
+        }
+    });
+    function setSeeds() {
+        seedPRNG();
+        randomSeed(randomEditArt() * 0xFFFFFF);
+        noiseSeed(randomEditArt() * 0xFFFFFF);
+    }
+    function getRNG(n) { return sfc32(...cyrb128(randomSeedEditArt + n.toString())); }
+    function seedPRNG() {
+        randomM0 = getRNG(m0); randomM1 = getRNG(m1); randomM2 = getRNG(m2);
+        randomM3 = getRNG(m3); randomM4 = getRNG(m4);
+        randomEditArt = getRNG(`${m0}${m1}${m2}${m3}${m4}`);
+    }
+    function cyrb128(str) {
+        let h1=1779033703,h2=3144134277,h3=1013904242,h4=2773480762;
+        for(let i=0,k;i<str.length;i++){k=str.charCodeAt(i);h1=h2^Math.imul(h1^k,597399067);h2=h3^Math.imul(h2^k,2869860233);h3=h4^Math.imul(h3^k,951274213);h4=h1^Math.imul(h4^k,2716044179);}
+        h1=Math.imul(h3^(h1>>>18),597399067);h2=Math.imul(h4^(h2>>>22),2869860233);h3=Math.imul(h1^(h3>>>17),951274213);h4=Math.imul(h2^(h4>>>19),2716044179);
+        return[(h1^h2^h3^h4)>>>0,(h2^h1)>>>0,(h3^h1)>>>0,(h4^h1)>>>0];
+    }
+    function sfc32(a,b,c,d){return function(){a>>>=0;b>>>=0;c>>>=0;d>>>=0;var t=(a+b)|0;a=b^(b>>>9);b=(c+(c<<3))|0;c=(c<<21)|(c>>>11);d=(d+1)|0;t=(t+d)|0;c=(c+t)|0;return(t>>>0)/4294967296;};}
+</script>
+
+<div class="app">
+
+    <!-- ── SIDEBAR ── -->
+    <aside class="sidebar">
+        <div class="sidebar-head">
+            <div class="sidebar-title">Field Script</div>
+            <div class="sidebar-sub">generative mark-making</div>
+        </div>
+
+        <div class="sidebar-body">
+
+            <!-- FIELD -->
+            <div class="section">
+                <div class="section-label">Field</div>
+                <button class="ctrl" id="waveBtn">
+                    <span class="ctrl-name">wave</span>
+                    <span class="ctrl-val" id="waveVal">Medium</span>
+                </button>
+                <button class="ctrl" id="waveAngleBtn">
+                    <span class="ctrl-name">angle</span>
+                    <span class="ctrl-val" id="waveAngleVal">Vertical</span>
+                </button>
+                <button class="ctrl" id="invertBtn">
+                    <span class="ctrl-name">invert</span>
+                    <span class="ctrl-val" id="invertVal">off</span>
+                </button>
+            </div>
+
+            <div class="rule"></div>
+
+            <!-- MARKS -->
+            <div class="section">
+                <div class="section-label">Marks</div>
+                <button class="ctrl" id="densityBtn">
+                    <span class="ctrl-name">density</span>
+                    <span class="ctrl-val" id="densityVal">Dense</span>
+                </button>
+                <button class="ctrl" id="depthBtn">
+                    <span class="ctrl-name">depth</span>
+                    <span class="ctrl-val" id="depthVal">6</span>
+                </button>
+                <button class="ctrl" id="strokeTypeBtn">
+                    <span class="ctrl-name">strokes</span>
+                    <span class="ctrl-val" id="strokeTypeVal">Lines</span>
+                </button>
+                <button class="ctrl" id="crosshatchBtn">
+                    <span class="ctrl-name">crosshatch</span>
+                    <span class="ctrl-val" id="crosshatchVal">off</span>
+                </button>
+            </div>
+
+            <div class="rule"></div>
+
+            <!-- STYLE -->
+            <div class="section">
+                <div class="section-label">Style</div>
+                <button class="ctrl" id="wobbleBtn">
+                    <span class="ctrl-name">wobble</span>
+                    <span class="ctrl-val" id="wobbleVal">off</span>
+                </button>
+                <button class="ctrl" id="sepiaBtn">
+                    <span class="ctrl-name">sepia</span>
+                    <span class="ctrl-val" id="sepiaVal">off</span>
+                </button>
+                <button class="ctrl" id="growthBtn">
+                    <span class="ctrl-name">growth</span>
+                    <span class="ctrl-val" id="growthVal">Serpentine</span>
+                </button>
+                <button class="ctrl" id="threadColorBtn">
+                    <span class="ctrl-name">thread</span>
+                    <span class="ctrl-val" id="threadColorVal">Black</span>
+                </button>
+                <button class="ctrl on" id="skipSparseBtn">
+                    <span class="ctrl-name">skip sparse</span>
+                    <span class="ctrl-val" id="skipSparseVal">on</span>
+                </button>
+            </div>
+
+            <div class="rule"></div>
+
+            <!-- VIEW -->
+            <div class="section">
+                <div class="section-label">View</div>
+                <button class="ctrl" id="hideThreadsBtn">
+                    <span class="ctrl-name">threads</span>
+                    <span class="ctrl-val" id="hideThreadsVal">visible</span>
+                </button>
+                <button class="ctrl" id="hideHighwaysBtn">
+                    <span class="ctrl-name">highways</span>
+                    <span class="ctrl-val" id="hideHighwaysVal">visible</span>
+                </button>
+            </div>
+
+        </div>
+
+        <!-- ACTIONS -->
+        <div class="sidebar-footer">
+            <div class="act-row">
+                <button class="act primary" id="randomizeBtn">randomize</button>
+                <button class="act" id="refreshBtn">refresh</button>
+            </div>
+            <div class="act-row">
+                <button class="act" id="svgBtn">svg</button>
+                <button class="act" id="pngBtn">png</button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ── CANVAS ── -->
+    <main class="stage">
+        <div id="canvas-container"></div>
+    </main>
+
+</div>
+
+<script src="index.js"></script>
+</body>
+</html>
