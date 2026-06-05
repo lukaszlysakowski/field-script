@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "file=$(jq -r '.tool_input.file_path // \"\"' 2>/dev/null); if echo \"$file\" | grep -q 'asemic_writing'; then echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"Field Script file edited. Per CLAUDE.md auto-update protocol: check if the Controls table needs updating (default changed, control added/removed), if an architectural decision was made (update Architecture section), or if the art direction shifted (update philosophy.md). Update the relevant section now if applicable.\"}}'; fi"
+          }
+        ]
+      }
+    ]
+  }
+}
