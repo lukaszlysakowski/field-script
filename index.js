@@ -118,7 +118,7 @@ function setupControls() {
     wire('sepiaBtn', () => {
         sepiaMode = !sepiaMode;
         setToggle('sepiaBtn', 'sepiaVal', sepiaMode, 'on', 'off');
-        initDrawing();
+        repaint();
     });
     wire('growthBtn', () => {
         growthMode = (growthMode + 1) % 3;
@@ -760,6 +760,24 @@ function exportSVG() {
 
 function exportPNG() {
     save(`asemic_d${depthOptions[maxDepthLevel]}_${densityOptions[densityLevel].name.toLowerCase()}.png`);
+}
+
+// Repaint existing segments with current colour mode — no regeneration, no new seed.
+// Used by style-only toggles (sepia) so marks stay identical.
+function repaint() {
+    noLoop();
+    background(sepiaMode ? '#f0dfc0' : '#faebd7');
+    let pad   = Math.round(cs * 0.04);
+    let inner = cs - pad * 2;
+    stroke(sepiaMode ? '#5c4033' : 0);
+    strokeWeight(0.7);
+    noFill();
+    rect(pad, pad, inner, inner);
+    for (let i = 0; i < segments.length; i++) {
+        let nextSeg = i < segments.length - 1 ? segments[i + 1] : null;
+        drawSegment(segments[i], i, nextSeg);
+    }
+    drawSignature();
 }
 
 function refresh() {
