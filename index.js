@@ -118,7 +118,7 @@ function setupControls() {
     wire('sepiaBtn', () => {
         sepiaMode = !sepiaMode;
         setToggle('sepiaBtn', 'sepiaVal', sepiaMode, 'on', 'off');
-        repaint();
+        setPaperColor();
     });
     wire('growthBtn', () => {
         growthMode = (growthMode + 1) % 3;
@@ -453,8 +453,14 @@ function generateHighways(allCells) {
 
 // ─── main ─────────────────────────────────────────────────────────────────────
 
+function setPaperColor() {
+    let el = document.getElementById('canvas-container');
+    if (el) el.style.backgroundColor = sepiaMode ? '#f0dfc0' : '#faebd7';
+}
+
 function initDrawing() {
-    background(sepiaMode ? '#f0dfc0' : '#faebd7');
+    clear();
+    setPaperColor();
     segments       = [];
     cells          = [];
     currentSegment = 0;
@@ -759,14 +765,28 @@ function exportSVG() {
 }
 
 function exportPNG() {
-    save(`asemic_d${depthOptions[maxDepthLevel]}_${densityOptions[densityLevel].name.toLowerCase()}.png`);
+    // Composite paper colour + transparent canvas into an offscreen canvas for export
+    let p5canvas = document.querySelector('#canvas-container canvas');
+    let offscreen = document.createElement('canvas');
+    offscreen.width  = cs;
+    offscreen.height = cs;
+    let ctx = offscreen.getContext('2d');
+    ctx.fillStyle = sepiaMode ? '#f0dfc0' : '#faebd7';
+    ctx.fillRect(0, 0, cs, cs);
+    ctx.drawImage(p5canvas, 0, 0);
+    let link = document.createElement('a');
+    link.download = `asemic_d${depthOptions[maxDepthLevel]}_${densityOptions[densityLevel].name.toLowerCase()}.png`;
+    link.href = offscreen.toDataURL('image/png');
+    link.click();
 }
 
 // Repaint existing segments with current colour mode — no regeneration, no new seed.
 // Used by style-only toggles (sepia) so marks stay identical.
 function repaint() {
     noLoop();
-    background(sepiaMode ? '#f0dfc0' : '#faebd7');
+    currentSegment = segments.length;
+    clear();
+    setPaperColor();
     let pad   = Math.round(cs * 0.04);
     let inner = cs - pad * 2;
     stroke(sepiaMode ? '#5c4033' : 0);
@@ -785,8 +805,8 @@ function refresh() {
     initDrawing();
 }
 
-function mousePressed() {
-    if (mouseX >= 0 && mouseX <= cs && mouseY >= 0 && mouseY <= cs) {
+function mousePressed(event) {
+    if (event && event.target && event.target.tagName === 'CANVAS') {
         setSeeds();
         initDrawing();
     }
