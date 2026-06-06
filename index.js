@@ -768,8 +768,10 @@ function refresh() {
 }
 
 function mousePressed() {
-    setSeeds();
-    initDrawing();
+    if (mouseX >= 0 && mouseX <= cs && mouseY >= 0 && mouseY <= cs) {
+        setSeeds();
+        initDrawing();
+    }
 }
 
 function windowResized() {
