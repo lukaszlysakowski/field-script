@@ -834,6 +834,11 @@ function repaint() {
 }
 
 function refresh() {
+    m0 = Math.random().toFixed(3);
+    m1 = Math.random().toFixed(3);
+    m2 = Math.random().toFixed(3);
+    m3 = Math.random().toFixed(3);
+    m4 = Math.random().toFixed(3);
     setSeeds();
     initDrawing();
 }
