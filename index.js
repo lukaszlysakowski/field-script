@@ -24,6 +24,9 @@ let coloredThread         = false;
 let hideThreads           = false;
 let hideHighways          = false;
 
+// Thread overlay — separate canvas so colour/visibility changes never touch marks
+let threadCanvas, threadCtx;
+
 // UI wired via HTML — no p5 button elements
 
 const densityOptions = [
@@ -48,6 +51,17 @@ function setup() {
     cs = Math.min(windowWidth - sidebarW - pad, windowHeight - pad);
     let canvas = createCanvas(cs, cs);
     canvas.parent('canvas-container');
+
+    // Thread overlay: positioned above the p5 canvas, clicks pass through
+    let container = document.getElementById('canvas-container');
+    container.style.position = 'relative';
+    threadCanvas = document.createElement('canvas');
+    threadCanvas.width  = cs;
+    threadCanvas.height = cs;
+    Object.assign(threadCanvas.style, { position: 'absolute', top: '0', left: '0', pointerEvents: 'none' });
+    container.appendChild(threadCanvas);
+    threadCtx = threadCanvas.getContext('2d');
+
     setupControls();
     setSeeds();
     initDrawing();
@@ -128,17 +142,17 @@ function setupControls() {
     wire('threadColorBtn', () => {
         coloredThread = !coloredThread;
         setToggle('threadColorBtn', 'threadColorVal', coloredThread, 'Red', 'Black');
-        repaint();
+        drawThreadsToOverlay();
     });
     wire('skipSparseBtn', () => {
         skipSparseConnections = !skipSparseConnections;
         setToggle('skipSparseBtn', 'skipSparseVal', skipSparseConnections, 'on', 'off');
-        initDrawing();
+        drawThreadsToOverlay();
     });
     wire('hideThreadsBtn', () => {
         hideThreads = !hideThreads;
         setToggle('hideThreadsBtn', 'hideThreadsVal', hideThreads, 'hidden', 'visible');
-        setSeeds(); initDrawing();
+        drawThreadsToOverlay();
     });
     wire('hideHighwaysBtn', () => {
         hideHighways = !hideHighways;
@@ -453,6 +467,43 @@ function generateHighways(allCells) {
 
 // ─── main ─────────────────────────────────────────────────────────────────────
 
+// Draw all threads to the overlay canvas — never touches the main p5 canvas.
+// Deterministic: wobble uses the same noise seed so positions are identical to
+// what was computed during the original draw.
+function drawThreadsToOverlay() {
+    if (!threadCtx) return;
+    threadCtx.clearRect(0, 0, cs, cs);
+    if (hideThreads) return;
+
+    threadCtx.lineWidth = 0.8;
+    threadCtx.lineCap   = 'round';
+    if (coloredThread) {
+        threadCtx.strokeStyle = '#843c41';
+        threadCtx.globalAlpha = 1.0;
+    } else if (sepiaMode) {
+        threadCtx.strokeStyle = 'rgb(102,87,71)';
+        threadCtx.globalAlpha = 1.0;
+    } else {
+        threadCtx.strokeStyle = '#000000';
+        threadCtx.globalAlpha = 0.39; // matches stroke(0, 100) at 8-bit alpha
+    }
+
+    threadCtx.beginPath();
+    for (let i = 0; i < segments.length; i++) {
+        let seg     = segments[i];
+        let nextSeg = i < segments.length - 1 ? segments[i + 1] : null;
+        if (!nextSeg || seg.isHighway) continue;
+        let avgDensity = (seg.density + nextSeg.density) / 2;
+        if (skipSparseConnections && avgDensity <= 0.5) continue;
+        let p2 = wobble(seg.x2, seg.y2, i * 0.10 + 50);
+        let p3 = wobble(nextSeg.x1, nextSeg.y1, i * 0.1 + 100);
+        threadCtx.moveTo(p2.x, p2.y);
+        threadCtx.lineTo(p3.x, p3.y);
+    }
+    threadCtx.stroke();
+    threadCtx.globalAlpha = 1.0;
+}
+
 function setPaperColor() {
     let el = document.getElementById('canvas-container');
     if (el) el.style.backgroundColor = sepiaMode ? '#f0dfc0' : '#faebd7';
@@ -461,6 +512,7 @@ function setPaperColor() {
 function initDrawing() {
     clear();
     setPaperColor();
+    if (threadCtx) threadCtx.clearRect(0, 0, cs, cs);
     segments       = [];
     cells          = [];
     currentSegment = 0;
@@ -555,13 +607,13 @@ function draw() {
     let perFrame = 20;
 
     for (let i = 0; i < perFrame && currentSegment < segments.length; i++) {
-        let nextSeg = currentSegment < segments.length - 1 ? segments[currentSegment + 1] : null;
-        drawSegment(segments[currentSegment], currentSegment, nextSeg);
+        drawSegment(segments[currentSegment], currentSegment);
         currentSegment++;
     }
 
     if (currentSegment >= segments.length) {
         noLoop();
+        drawThreadsToOverlay();
         drawSignature();
         triggerPreview();
     }
@@ -584,7 +636,7 @@ function drawSignature() {
     text(label, pad, pad + inner + Math.round(sigSize * 0.55));
 }
 
-function drawSegment(seg, idx, nextSeg) {
+function drawSegment(seg, idx) {
     let baseWeight = cs / 400;
     let sw = baseWeight * map(seg.depth, 0, 8, 1.5, 0.3) * (seg.w || 1);
     strokeWeight(max(0.3, sw));
@@ -598,36 +650,16 @@ function drawSegment(seg, idx, nextSeg) {
         stroke(0);
     }
 
-    let p2;
     if (seg.isBezier) {
         let p1  = wobble(seg.x1,  seg.y1,  idx*0.10);
         let cp1 = wobble(seg.cx1, seg.cy1, idx*0.10 + 15);
         let cp2 = wobble(seg.cx2, seg.cy2, idx*0.10 + 30);
-        p2  = wobble(seg.x2,  seg.y2,  idx*0.10 + 50);
+        let p2  = wobble(seg.x2,  seg.y2,  idx*0.10 + 50);
         bezier(p1.x, p1.y, cp1.x, cp1.y, cp2.x, cp2.y, p2.x, p2.y);
     } else {
         let p1 = wobble(seg.x1, seg.y1, idx*0.10);
-        p2 = wobble(seg.x2, seg.y2, idx*0.10 + 50);
+        let p2 = wobble(seg.x2, seg.y2, idx*0.10 + 50);
         line(p1.x, p1.y, p2.x, p2.y);
-    }
-
-    // Thread connection to next segment — not on highways (structural marks, not trace)
-    if (nextSeg && !hideThreads && !seg.isHighway) {
-        let avgDensity = (seg.density + nextSeg.density) / 2;
-        if (!skipSparseConnections || avgDensity > 0.5) {
-            strokeWeight(0.8);
-            if (coloredThread) {
-                stroke('#843c41');
-            } else {
-                if (sepiaMode) {
-                    stroke(30, 30, 40);
-                } else {
-                    stroke(0, 100);
-                }
-            }
-            let p3 = wobble(nextSeg.x1, nextSeg.y1, idx*0.1 + 100);
-            line(p2.x, p2.y, p3.x, p3.y);
-        }
     }
 
     if (sepiaMode) colorMode(RGB, 255);
@@ -765,8 +797,8 @@ function exportSVG() {
 }
 
 function exportPNG() {
-    // Composite paper colour + transparent canvas into an offscreen canvas for export
-    let p5canvas = document.querySelector('#canvas-container canvas');
+    // Composite: paper colour → marks → threads
+    let p5canvas  = document.querySelector('#canvas-container canvas');
     let offscreen = document.createElement('canvas');
     offscreen.width  = cs;
     offscreen.height = cs;
@@ -774,6 +806,7 @@ function exportPNG() {
     ctx.fillStyle = sepiaMode ? '#f0dfc0' : '#faebd7';
     ctx.fillRect(0, 0, cs, cs);
     ctx.drawImage(p5canvas, 0, 0);
+    if (threadCanvas) ctx.drawImage(threadCanvas, 0, 0);
     let link = document.createElement('a');
     link.download = `asemic_d${depthOptions[maxDepthLevel]}_${densityOptions[densityLevel].name.toLowerCase()}.png`;
     link.href = offscreen.toDataURL('image/png');
@@ -794,9 +827,9 @@ function repaint() {
     noFill();
     rect(pad, pad, inner, inner);
     for (let i = 0; i < segments.length; i++) {
-        let nextSeg = i < segments.length - 1 ? segments[i + 1] : null;
-        drawSegment(segments[i], i, nextSeg);
+        drawSegment(segments[i], i);
     }
+    drawThreadsToOverlay();
     drawSignature();
 }
 
@@ -817,6 +850,7 @@ function windowResized() {
     let pad      = 48;
     cs = Math.min(windowWidth - sidebarW - pad, windowHeight - pad);
     resizeCanvas(cs, cs);
+    if (threadCanvas) { threadCanvas.width = cs; threadCanvas.height = cs; }
     setSeeds();
     initDrawing();
 }
