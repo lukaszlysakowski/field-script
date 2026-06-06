@@ -128,7 +128,7 @@ function setupControls() {
     wire('threadColorBtn', () => {
         coloredThread = !coloredThread;
         setToggle('threadColorBtn', 'threadColorVal', coloredThread, 'Red', 'Black');
-        initDrawing();
+        repaint();
     });
     wire('skipSparseBtn', () => {
         skipSparseConnections = !skipSparseConnections;
