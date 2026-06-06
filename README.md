@@ -106,3 +106,11 @@ Then open `http://localhost:3000` (or whichever port).
 ---
 
 *Each seed is a complete document. No two are translatable. All are somehow familiar.*
+
+---
+
+## License
+
+[CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/) — Lukasz Lysakowski, 2026
+
+You may share this work with attribution. Commercial use and derivative works are not permitted.
