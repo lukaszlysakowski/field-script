@@ -279,6 +279,29 @@
 
         <div class="sidebar-body">
 
+            <!-- CANON -->
+            <div class="section" id="canonSection">
+                <div class="section-label">Canon · curated</div>
+                <button class="ctrl" id="canonBrowseBtn">
+                    <span class="ctrl-name">browse</span>
+                    <span class="ctrl-val" id="canonBrowseVal">off</span>
+                </button>
+                <button class="ctrl" id="canonArchBtn">
+                    <span class="ctrl-name">archetype</span>
+                    <span class="ctrl-val" id="canonArchVal">All · 132</span>
+                </button>
+                <div class="ctrl" style="cursor:default;">
+                    <span class="ctrl-name" id="canonPosName" style="color:var(--accent-lo);">—</span>
+                    <span class="ctrl-val" id="canonPosVal">0 / 132</span>
+                </div>
+                <div class="act-row" style="padding:4px 16px 2px;">
+                    <button class="act" id="canonPrevBtn">‹ prev</button>
+                    <button class="act" id="canonNextBtn">next ›</button>
+                </div>
+            </div>
+
+            <div class="rule"></div>
+
             <!-- FIELD -->
             <div class="section">
                 <div class="section-label">Field</div>
@@ -383,6 +406,7 @@
 
 </div>
 
+<script src="canon.js"></script>
 <script src="index.js"></script>
 </body>
 </html>

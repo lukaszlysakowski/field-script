@@ -56,13 +56,15 @@ function setup() {
     let container = document.getElementById('canvas-container');
     container.style.position = 'relative';
     threadCanvas = document.createElement('canvas');
-    threadCanvas.width  = cs;
-    threadCanvas.height = cs;
-    Object.assign(threadCanvas.style, { position: 'absolute', top: '0', left: '0', pointerEvents: 'none' });
+    let pd = pixelDensity();
+    threadCanvas.width  = cs * pd;
+    threadCanvas.height = cs * pd;
+    Object.assign(threadCanvas.style, { position: 'absolute', top: '0', left: '0', width: cs + 'px', height: cs + 'px', pointerEvents: 'none' });
     container.appendChild(threadCanvas);
     threadCtx = threadCanvas.getContext('2d');
 
     setupControls();
+    setupCanon();
     setSeeds();
     initDrawing();
 }
@@ -163,6 +165,103 @@ function setupControls() {
     wire('refreshBtn',   refresh);
     wire('svgBtn',       exportSVG);
     wire('pngBtn',       exportPNG);
+}
+
+// ─── canon browse ───────────────────────────────────────────────────────────
+// Steps through the curated 132-keeper canon (canon.js) in the live sketch,
+// filterable by archetype. Each record sets all params + seeds, then renders.
+
+let canonState = { active: false, index: 0, archFilter: 'all', archCycle: ['all'], filterList: [] };
+
+// Push current globals onto every sidebar label (used after loading a canon record).
+function syncUI() {
+    setCtrl('waveVal',       waveOptions[waveLevel].name);
+    setCtrl('waveAngleVal',  waveAngleOptions[waveAngleLevel]);
+    setCtrl('densityVal',    densityOptions[densityLevel].name);
+    setCtrl('depthVal',      depthOptions[maxDepthLevel]);
+    setCtrl('strokeTypeVal', useBezier ? 'Bezier' : 'Lines');
+    setCtrl('growthVal',     growthOptions[growthMode]);
+    setToggle('invertBtn',      'invertVal',      invertDensity,         'on',     'off');
+    setToggle('crosshatchBtn',  'crosshatchVal',  crosshatchEnabled,     'on',     'off');
+    setToggle('wobbleBtn',      'wobbleVal',       wobbleMode,           'on',     'off');
+    setToggle('sepiaBtn',       'sepiaVal',        sepiaMode,            'on',     'off');
+    setToggle('threadColorBtn', 'threadColorVal',  coloredThread,        'Red',    'Black');
+    setToggle('skipSparseBtn',  'skipSparseVal',   skipSparseConnections, 'on',    'off');
+    setToggle('hideThreadsBtn', 'hideThreadsVal',  hideThreads,          'hidden', 'visible');
+    setToggle('hideHighwaysBtn','hideHighwaysVal', hideHighways,         'hidden', 'visible');
+}
+
+function applyCanonRecord(rec) {
+    waveLevel = rec.wl; waveAngleLevel = rec.wA; densityLevel = rec.dL; maxDepthLevel = rec.mD;
+    growthMode = rec.gM; invertDensity = rec.inv; wobbleMode = rec.wob; crosshatchEnabled = rec.xh;
+    useBezier = rec.bez; skipSparseConnections = rec.skip; coloredThread = rec.ct;
+    hideThreads = rec.ht; hideHighways = rec.hh; sepiaMode = true; // canon was curated in sepia
+    let s = rec.seeds.split(' ');
+    m0 = s[0]; m1 = s[1]; m2 = s[2]; m3 = s[3]; m4 = s[4];
+    syncUI();
+    setPaperColor(); setSeeds(); initDrawing();
+}
+
+function canonRefreshList() {
+    let C = window.FieldScriptCanon;
+    canonState.filterList = canonState.archFilter === 'all'
+        ? C.records : C.records.filter(r => r.arch === canonState.archFilter);
+}
+
+function canonUpdateLabels() {
+    let C = window.FieldScriptCanon;
+    let list = canonState.filterList;
+    let archName = canonState.archFilter === 'all' ? 'All' : (C.archetypes[canonState.archFilter] || canonState.archFilter);
+    setCtrl('canonArchVal', archName + ' · ' + list.length);
+    if (list.length) {
+        setCtrl('canonPosName', list[canonState.index].id);
+        setCtrl('canonPosVal',  (canonState.index + 1) + ' / ' + list.length);
+    } else {
+        setCtrl('canonPosName', '—'); setCtrl('canonPosVal', '0 / 0');
+    }
+    setToggle('canonBrowseBtn', 'canonBrowseVal', canonState.active, 'on', 'off');
+}
+
+function canonShow() {
+    let list = canonState.filterList;
+    if (!list.length) return;
+    if (canonState.index >= list.length) canonState.index = 0;
+    if (canonState.index < 0) canonState.index = list.length - 1;
+    canonState.active = true;
+    applyCanonRecord(list[canonState.index]);
+    canonUpdateLabels();
+}
+
+function canonStep(d) {
+    let list = canonState.filterList;
+    if (!list.length) return;
+    canonState.index = (canonState.index + d + list.length) % list.length;
+    canonShow();
+}
+
+function setupCanon() {
+    let C = window.FieldScriptCanon;
+    let section = document.getElementById('canonSection');
+    if (!C || !C.records || !C.records.length) { if (section) section.style.display = 'none'; return; }
+    let counts = {};
+    C.records.forEach(r => counts[r.arch] = (counts[r.arch] || 0) + 1);
+    canonState.archCycle = ['all'].concat(Object.keys(counts).sort((a, b) => counts[b] - counts[a]));
+    canonRefreshList();
+
+    wire('canonBrowseBtn', () => {
+        if (canonState.active) { canonState.active = false; canonUpdateLabels(); }
+        else canonShow();
+    });
+    wire('canonArchBtn', () => {
+        let i = canonState.archCycle.indexOf(canonState.archFilter);
+        canonState.archFilter = canonState.archCycle[(i + 1) % canonState.archCycle.length];
+        canonState.index = 0;
+        canonRefreshList();
+        if (canonState.active) canonShow(); else canonUpdateLabels();
+    });
+    wire('canonPrevBtn', () => canonStep(-1));
+    wire('canonNextBtn', () => canonStep(1));
+    canonUpdateLabels();
 }
 
 // ─── density field ────────────────────────────────────────────────────────────
@@ -472,9 +571,15 @@ function generateHighways(allCells) {
 // what was computed during the original draw.
 function drawThreadsToOverlay() {
     if (!threadCtx) return;
-    threadCtx.clearRect(0, 0, cs, cs);
+    let tW = threadCanvas.width;
+    let tH = threadCanvas.height;
+    let pd = pixelDensity();
+    threadCtx.clearRect(0, 0, tW, tH);
     if (hideThreads) return;
 
+    // Scale coordinate space to match the HiDPI canvas
+    threadCtx.save();
+    threadCtx.scale(pd, pd);
     threadCtx.lineWidth = 0.8;
     threadCtx.lineCap   = 'round';
     if (coloredThread) {
@@ -501,6 +606,7 @@ function drawThreadsToOverlay() {
         threadCtx.lineTo(p3.x, p3.y);
     }
     threadCtx.stroke();
+    threadCtx.restore();
     threadCtx.globalAlpha = 1.0;
 }
 
@@ -626,7 +732,7 @@ function drawSignature() {
     let dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
     let timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
     let label   = `Field Script · seed ${m0} ${m1} ${m2} ${m3} ${m4}  ${dateStr} ${timeStr}`;
-    let sigSize = max(8, Math.round(cs * 0.013));
+    let sigSize = max(6, Math.round(cs * 0.013) - 2); // −2pt: smaller title/seed/timestamp signature
 
     fill(sepiaMode ? '#5c4033' : 0);
     noStroke();
@@ -683,6 +789,13 @@ function randomizeAll() {
     coloredThread         = Math.random() > 0.7;
     hideThreads           = Math.random() > 0.7;
     hideHighways          = Math.random() > 0.8;
+
+    // Guard: invertDensity fills only the cells normally skipped; stacking skipSparseConnections
+    // on top of that at shallow depths deletes the remainder, leaving an empty interior (only the
+    // frame + signature render). Drop skip when it would degenerate. See Pass 15 prune (CLAUDE.md).
+    if (invertDensity && skipSparseConnections && maxDepthLevel <= 3) {
+        skipSparseConnections = false;
+    }
 
     setCtrl('densityVal',    densityOptions[densityLevel].name);
     setCtrl('depthVal',      depthOptions[maxDepthLevel]);
@@ -798,15 +911,21 @@ function exportSVG() {
 
 function exportPNG() {
     // Composite: paper colour → marks → threads
+    // Export at 2× the HiDPI canvas size for a large, print-quality PNG
+    let pd        = pixelDensity();
+    let exportW   = cs * pd * 2;
+    let exportH   = cs * pd * 2;
     let p5canvas  = document.querySelector('#canvas-container canvas');
     let offscreen = document.createElement('canvas');
-    offscreen.width  = cs;
-    offscreen.height = cs;
+    offscreen.width  = exportW;
+    offscreen.height = exportH;
     let ctx = offscreen.getContext('2d');
     ctx.fillStyle = sepiaMode ? '#f0dfc0' : '#faebd7';
-    ctx.fillRect(0, 0, cs, cs);
-    ctx.drawImage(p5canvas, 0, 0);
-    if (threadCanvas) ctx.drawImage(threadCanvas, 0, 0);
+    ctx.fillRect(0, 0, exportW, exportH);
+    // p5canvas is cs*pd × cs*pd — scale it up 2× for the doubled export
+    ctx.drawImage(p5canvas, 0, 0, exportW, exportH);
+    // threadCanvas is cs*pd × cs*pd — same 2× scale
+    if (threadCanvas) ctx.drawImage(threadCanvas, 0, 0, exportW, exportH);
     let link = document.createElement('a');
     link.download = `asemic_d${depthOptions[maxDepthLevel]}_${densityOptions[densityLevel].name.toLowerCase()}.png`;
     link.href = offscreen.toDataURL('image/png');
@@ -855,7 +974,13 @@ function windowResized() {
     let pad      = 48;
     cs = Math.min(windowWidth - sidebarW - pad, windowHeight - pad);
     resizeCanvas(cs, cs);
-    if (threadCanvas) { threadCanvas.width = cs; threadCanvas.height = cs; }
+    if (threadCanvas) {
+        let pd = pixelDensity();
+        threadCanvas.width  = cs * pd;
+        threadCanvas.height = cs * pd;
+        threadCanvas.style.width  = cs + 'px';
+        threadCanvas.style.height = cs + 'px';
+    }
     setSeeds();
     initDrawing();
 }

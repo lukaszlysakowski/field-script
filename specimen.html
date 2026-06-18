@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Field Script — Specimen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#ece2cf;--panel:#f6efe0;--ink:#2b2620;--muted:#8a7c66;--accent:#7a5c3c;--line:#d4c7ad;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:'Fraunces',Georgia,serif;line-height:1.5;padding:64px 56px 88px;}
+.wrap{max-width:1180px;margin:0 auto;}
+header{border-bottom:2px solid var(--ink);padding-bottom:22px;margin-bottom:8px;}
+.head-row{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap;}
+h1{font-size:54px;font-weight:600;letter-spacing:-0.01em;line-height:1;}
+.tag{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);margin-top:12px;}
+.maker-btn{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);text-decoration:none;border:1px solid var(--accent);border-radius:3px;padding:11px 16px;transition:all .14s;white-space:nowrap;margin-top:6px;}
+.maker-btn:hover{background:var(--accent);color:var(--paper);}
+.lede{font-size:16px;max-width:62ch;margin-top:18px;color:#473f33;}
+.lede b{font-weight:600;}
+.meta{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-top:14px;letter-spacing:.04em;}
+.sec{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin:46px 0 18px;padding-bottom:6px;border-bottom:1px solid var(--line);}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px 24px;}
+.grid.extremes{grid-template-columns:repeat(2,1fr);gap:30px;}
+.card{display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:13px;text-decoration:none;color:inherit;transition:border-color .14s,transform .14s,box-shadow .14s;}
+.card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 22px rgba(60,45,25,.13);}
+.card img{width:100%;aspect-ratio:1;object-fit:cover;border:1px solid var(--line);background:#f0dfc0;display:block;}
+.aname-row{display:flex;justify-content:space-between;align-items:baseline;margin-top:12px;gap:10px;}
+.aname{font-size:20px;font-weight:600;}
+.card.big .aname{font-size:25px;}
+.acount{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);}
+.adesc{font-size:13.5px;color:#52493b;margin-top:3px;line-height:1.4;}
+.card.big .adesc{font-size:15px;}
+.viewlink{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em;color:var(--accent);margin-top:10px;}
+footer{margin-top:56px;padding-top:18px;border-top:1px solid var(--line);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--muted);display:flex;justify-content:space-between;}
+@media(max-width:880px){.grid{grid-template-columns:repeat(2,1fr)}.grid.extremes{grid-template-columns:1fr}body{padding:40px 26px}h1{font-size:40px}}
+</style>
+</head>
+<body><div class="wrap">
+<header>
+  <div class="head-row">
+    <div>
+      <h1>Field Script</h1>
+      <div class="tag">A Specimen of the Grammar</div>
+    </div>
+    <a class="maker-btn" href="index.html" target="_blank" rel="noopener">Open the generative maker ↗</a>
+  </div>
+  <p class="lede">A generative asemic writing system: bezier glyph-marks scattered over a recursively-subdivided field, displaced by a wave, threaded with plotter lines. Its expressive range resolves into <b>fourteen archetypes</b> along a single axis — <b>waveLevel</b>, an openness dial running from densely packed to sparse and gestural.</p>
+  <div class="meta" id="meta"></div>
+</header>
+<div class="sec">Structured Field · waveLevel 2</div>
+<div class="grid" id="structGrid"></div>
+<div class="sec">Axis Extremes</div>
+<div class="grid extremes" id="extremeGrid"></div>
+<footer><span>Field Script · generative mark-making</span><span>lukaszgraphz – 06.2026</span><span>CC BY-NC-ND · <span id="yr"></span></span></footer>
+</div>
+
+<script src="canon.js"></script>
+<script>
+(function(){
+  const C = window.FieldScriptCanon;
+  document.getElementById('yr').textContent = new Date().getFullYear();
+  document.getElementById('meta').textContent =
+    C.records.length + ' curated compositions · 14 archetypes · waveLevel 0–3';
+  const STRUCT = [
+    ['2','Vertical wave bands — columns reading top to bottom.'],
+    ['3','Diagonal wave, inverted — a dense slanted text-block.'],
+    ['7','Horizontal medium wave — rows reading left to right.'],
+    ['14','Horizontal dense wave — tightly packed banded rows.'],
+    ['1','Radial wave, serpentine growth — marks orbiting a center.'],
+    ['9','Radial wave + radial growth, inverted — concentric rings.'],
+    ['10','Vertical dense field with radial growth.'],
+    ['6','Radial dense, spiral — an interconnected mesh.'],
+    ['5','Square wave, light & shallow — a few large isolated marks.'],
+    ['8','Diagonal light, deep, spiral — a sparse aerial scatter.'],
+    ['12','Inversion-driven — large isolated letterforms in open space.'],
+    ['TF','Chaotic wave — noise-driven, no geometric order.']
+  ];
+  const EXTREME = [
+    ['PM','waveLevel 0 — a densely packed field. The dense extreme.'],
+    ['OG','waveLevel 3 — a single gesture in open space. The sparse extreme.']
+  ];
+  const fileOf = id => id.replace(/·/g,'-');
+  function card(key, desc, big){
+    const recs = C.records.filter(r => r.arch === key);
+    if (!recs.length) return null;
+    const name = C.archetypes[key] || key;
+    const ex = recs[0]; // exemplar = first of the archetype
+    const a = document.createElement('a');
+    a.className = 'card' + (big ? ' big' : '');
+    a.href = 'theme.html#' + encodeURIComponent(key);
+    a.innerHTML = `<img src="renders/${fileOf(ex.id)}.jpg" loading="lazy" alt="${name}">
+      <div class="aname-row"><span class="aname">${name}</span><span class="acount">${recs.length}</span></div>
+      <div class="adesc">${desc}</div>
+      <div class="viewlink">Browse all ${recs.length} →</div>`;
+    return a;
+  }
+  const sg = document.getElementById('structGrid'), eg = document.getElementById('extremeGrid');
+  STRUCT.forEach(([k,d]) => { const c = card(k,d,false); if(c) sg.appendChild(c); });
+  EXTREME.forEach(([k,d]) => { const c = card(k,d,true); if(c) eg.appendChild(c); });
+})();
+</script>
+</body>
+</html>

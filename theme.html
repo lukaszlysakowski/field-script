@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Field Script — Theme</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#ece2cf;--panel:#f6efe0;--ink:#2b2620;--muted:#8a7c66;--accent:#7a5c3c;--line:#d4c7ad;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:'Fraunces',Georgia,serif;line-height:1.5;padding:34px 56px 80px;}
+.wrap{max-width:1240px;margin:0 auto;}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:18px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--line);padding-bottom:14px;}
+.topbar a{color:var(--ink);text-decoration:none;transition:color .14s;}
+.topbar a:hover{color:var(--accent);}
+.maker{border:1px solid var(--accent);border-radius:3px;padding:9px 14px;}
+.maker:hover{background:var(--accent);color:var(--paper)!important;}
+.headblock{margin:30px 0 8px;}
+h1{font-size:42px;font-weight:600;line-height:1;}
+.adesc{font-size:16px;color:#473f33;margin-top:12px;max-width:60ch;}
+.amid{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.05em;margin-top:12px;}
+.viewer{display:flex;align-items:center;justify-content:center;gap:24px;margin-top:24px;}
+.navbtn{font-size:32px;width:58px;height:176px;flex:none;background:var(--panel);border:1px solid var(--line);border-radius:6px;color:var(--accent);cursor:pointer;transition:all .14s;font-family:'Fraunces',serif;}
+.navbtn:hover{border-color:var(--accent);background:#efe6d4;}
+.stage{flex:none;width:min(108vh,968px);max-width:100%;}
+.stage img{width:100%;aspect-ratio:1;object-fit:contain;border:1px solid var(--line);background:#f0dfc0;display:block;border-radius:2px;}
+.cap{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.03em;flex-wrap:wrap;}
+.cap .id{color:var(--ink);font-weight:400;}
+.cap .pos{color:var(--accent);}
+.striplabel{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin:40px 0 14px;padding-bottom:6px;border-bottom:1px solid var(--line);}
+.strip{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;}
+.thumb{padding:4px;background:var(--panel);border:1px solid var(--line);border-radius:2px;cursor:pointer;transition:all .12s;}
+.thumb img{width:100%;aspect-ratio:1;object-fit:cover;display:block;border:1px solid var(--line);background:#f0dfc0;}
+.thumb.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);}
+.thumb:hover{border-color:var(--accent);}
+.thumb .tid{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted);margin-top:3px;text-align:center;}
+footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--muted);display:flex;justify-content:space-between;}
+.thumb .tid{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-top:5px;text-align:center;}
+.dl{display:flex;gap:10px;margin-top:13px;flex-wrap:wrap;}
+.dl button,.dl a{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);text-decoration:none;border:1px solid var(--accent);border-radius:3px;padding:7px 15px;transition:all .14s;cursor:pointer;background:transparent;}
+.dl button:hover,.dl a:hover{background:var(--accent);color:var(--paper);}
+.dl .penw{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:inline-flex;align-items:center;gap:5px;}
+.dl .penw input{width:46px;font-family:inherit;font-size:11px;padding:5px 6px;border:1px solid var(--line);border-radius:3px;background:var(--paper);color:var(--ink);text-align:center;}
+@media(max-width:760px){body{padding:24px 20px 60px}h1{font-size:32px}.navbtn{height:84px;width:42px;font-size:22px}.strip{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body><div class="wrap">
+<div class="topbar">
+  <a href="specimen.html">← Specimen</a>
+  <span id="crumb"></span>
+  <a class="maker" href="index.html" target="_blank" rel="noopener">Open in maker ↗</a>
+</div>
+<div class="headblock">
+  <h1 id="aname">Theme</h1>
+  <div class="adesc" id="adesc"></div>
+  <div class="amid" id="amid"></div>
+</div>
+<div class="viewer">
+  <button class="navbtn" id="prev" title="Previous (←)">‹</button>
+  <div class="stage">
+    <img id="big" alt="">
+    <div class="cap"><span class="id" id="capId"></span><span id="capSig"></span><span class="pos" id="capPos"></span></div>
+    <div class="dl"><button id="dlPng" type="button">Download PNG</button><a id="dlSvg" download>Download SVG</a><button id="dlPlot" type="button" title="Cleaned for pen plotting: no text/background, pen layers, mm sized, weights preserved">Plot-ready SVG</button><label class="penw" title="Pen width in mm — sets the overdraw pass count">pen <input id="penMM" type="number" value="0.3" step="0.05" min="0.05">mm</label><button id="dlOver" type="button" title="Bake thickness into geometry: heavy strokes become multiple parallel pen passes, so a single-pen plotter draws them thicker">Overdraw SVG</button></div>
+  </div>
+  <button class="navbtn" id="next" title="Next (→)">›</button>
+</div>
+<div class="striplabel" id="striplabel">All in this theme</div>
+<div class="strip" id="strip"></div>
+<footer><span>Field Script · generative mark-making</span><span>lukaszgraphz – 06.2026</span><span><a href="specimen.html" style="color:var(--muted);text-decoration:none;">Back to specimen</a></span></footer>
+</div>
+
+<script src="canon.js"></script>
+<script>
+(function(){
+  const C = window.FieldScriptCanon;
+  const DESC = {
+    '1':'Radial wave, serpentine growth — marks orbiting a center.',
+    '2':'Vertical wave bands — columns reading top to bottom.',
+    '3':'Diagonal wave, inverted — a dense slanted text-block.',
+    '5':'Square wave, light & shallow — a few large isolated marks.',
+    '6':'Radial dense, spiral — an interconnected mesh.',
+    '7':'Horizontal medium wave — rows reading left to right.',
+    '8':'Diagonal light, deep, spiral — a sparse aerial scatter.',
+    '9':'Radial wave + radial growth, inverted — concentric rings.',
+    '10':'Vertical dense field with radial growth.',
+    '12':'Inversion-driven — large isolated letterforms in open space.',
+    '14':'Horizontal dense wave — tightly packed banded rows.',
+    'PM':'waveLevel 0 — a densely packed field. The dense extreme of the axis.',
+    'OG':'waveLevel 3 — a single gesture in open space. The sparse extreme of the axis.',
+    'TF':'Chaotic wave — noise-driven, with no geometric order.',
+    'X':'Unclassified — outside the named archetypes.'
+  };
+  const WAVE=['Diagonal','Horizontal','Vertical','Radial','Square','Chaotic'], DENS=['Light','Medium','Dense'], GROW=['Serpentine','Radial','Spiral'];
+  const fileOf = id => id.replace(/·/g,'-');
+  function sig(r){ const fl=[r.inv?'inv':'',r.wob?'wob':'',r.xh?'xh':'',r.bez?'':'lines',r.skip?'skip':''].filter(Boolean).join(' '); return 'wl'+r.wl+' · '+WAVE[r.wA]+' · '+DENS[r.dL]+' · d'+r.depth+' · '+GROW[r.gM]+(fl?' · '+fl:''); }
+
+  // Route by hash (#KEY or #KEY:index) — survives the dev server's clean-URL
+  // redirect and needs no server config (works on GitHub Pages too).
+  const hashParts = decodeURIComponent(location.hash.replace(/^#/, '')).split(':');
+  let key = hashParts[0] || '1';
+  if (!C.archetypes[key]) key = C.records.length ? C.records[0].arch : '1';
+  const recs = C.records.filter(r => r.arch === key);
+  const name = C.archetypes[key] || key;
+  document.title = 'Field Script — ' + name;
+  document.getElementById('crumb').textContent = name + ' · ' + recs.length;
+  document.getElementById('aname').textContent = name;
+  document.getElementById('adesc').textContent = DESC[key] || '';
+  document.getElementById('amid').textContent = recs.length + ' composition' + (recs.length===1?'':'s') + ' in this theme';
+  document.getElementById('striplabel').textContent = 'All ' + recs.length + ' in “' + name + '”';
+
+  let i = parseInt(hashParts[1], 10); if (isNaN(i) || i < 0 || i >= recs.length) i = 0;
+
+  // thumbnail strip
+  const strip = document.getElementById('strip');
+  recs.forEach((r, idx) => {
+    const t = document.createElement('div');
+    t.className = 'thumb'; t.dataset.i = idx;
+    t.innerHTML = `<img src="renders/${fileOf(r.id)}.jpg" loading="lazy" alt="${r.id}"><div class="tid">${r.id}</div>`;
+    t.onclick = () => show(idx);
+    strip.appendChild(t);
+  });
+
+  const big = document.getElementById('big');
+  function show(n){
+    i = (n + recs.length) % recs.length;
+    const r = recs[i];
+    const f = fileOf(r.id);
+    big.src = 'renders/' + f + '.jpg';
+    document.getElementById('dlSvg').href = 'renders/' + f + '.svg';
+    document.getElementById('dlSvg').setAttribute('download', f + '.svg');
+    document.getElementById('capId').textContent = r.id;
+    document.getElementById('capSig').textContent = sig(r);
+    document.getElementById('capPos').textContent = (i+1) + ' / ' + recs.length;
+    [...strip.children].forEach((el,idx)=>el.classList.toggle('active', idx===i));
+    history.replaceState(null, '', '#' + encodeURIComponent(key) + (i ? ':' + i : ''));
+  }
+  // PNG download: rasterize the current JPG client-side (matches the site exactly)
+  function downloadPNG(){
+    const f = fileOf(recs[i].id);
+    const im = new Image();
+    im.onload = () => {
+      const c = document.createElement('canvas'); c.width = im.naturalWidth; c.height = im.naturalHeight;
+      c.getContext('2d').drawImage(im, 0, 0);
+      c.toBlob(b => {
+        const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = f + '.png';
+        document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
+      }, 'image/png');
+    };
+    im.src = 'renders/' + f + '.jpg';
+  }
+  // Plot-ready SVG: derive from the screen SVG — drop the text signature and
+  // background fill, keep the depth-scaled stroke weights (≈0.2–1.1mm at this
+  // size) for width-aware plotting, and tag a physical (mm) size. On a single
+  // pen these read as one width; width-aware tools (DrawingBotV3, vpype) use
+  // the weights. Run through vpype to optimise travel.
+  async function downloadPlotSVG(){
+    const f = fileOf(recs[i].id);
+    const txt = await (await fetch('renders/' + f + '.svg')).text();
+    const doc = new DOMParser().parseFromString(txt, 'image/svg+xml');
+    const svg = doc.documentElement;
+    svg.setAttribute('width', '200mm'); svg.setAttribute('height', '200mm'); // square; rescale to taste
+    // remove the background fill rect (direct child of <svg>); keep all pen
+    // layers — incl. the (stroke-based, plottable) signature — with their weights
+    [...svg.children].forEach(el => { if (el.tagName === 'rect') el.remove(); });
+    const out = '<?xml version="1.0" encoding="UTF-8"?>\n' + new XMLSerializer().serializeToString(svg);
+    const blob = new Blob([out], { type: 'image/svg+xml' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = f + '-plot.svg';
+    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
+  }
+  // Overdraw SVG: bake weight into geometry so a single pen draws thick lines.
+  // Each stroke of weight w is redrawn as N≈w/pen parallel passes offset along
+  // its normal; everything else is one pen-width pass. Pen width is asked at
+  // download time (mm); the doc is 200mm over a 1072 viewBox.
+  function odParseSubs(d){
+    const subs = [];
+    for (const part of d.split('M').map(s => s.trim()).filter(Boolean)){
+      if (part.includes('C')){ const [a,b] = part.split('C'); const s = a.trim().split(/[\s,]+/).map(Number); const r = b.trim().split(/[\s,]+/).map(Number);
+        subs.push({ t:'C', p:[[s[0],s[1]],[r[0],r[1]],[r[2],r[3]],[r[4],r[5]]] }); }
+      else if (part.includes('L')){ const [a,b] = part.split('L'); const s = a.trim().split(/[\s,]+/).map(Number); const e = b.trim().split(/[\s,]+/).map(Number);
+        subs.push({ t:'L', p:[[s[0],s[1]],[e[0],e[1]]] }); }
+    }
+    return subs;
+  }
+  function odSubD(sub, o){
+    const pts = sub.p, a = pts[0], b = pts[pts.length-1];
+    const dx = b[0]-a[0], dy = b[1]-a[1], len = Math.hypot(dx,dy) || 1, n = [-dy/len, dx/len];
+    const P = pts.map(p => [(p[0]+n[0]*o).toFixed(2), (p[1]+n[1]*o).toFixed(2)]);
+    return sub.t === 'L' ? `M ${P[0][0]} ${P[0][1]} L ${P[1][0]} ${P[1][1]}`
+      : `M ${P[0][0]} ${P[0][1]} C ${P[1][0]} ${P[1][1]} ${P[2][0]} ${P[2][1]} ${P[3][0]} ${P[3][1]}`;
+  }
+  function odPasses(d, w, pen){
+    const subs = odParseSubs(d), N = Math.min(14, Math.max(1, Math.round(w/pen))), out = [];
+    for (const sub of subs){
+      if (N === 1){ out.push(odSubD(sub, 0)); }
+      else for (let k=0;k<N;k++) out.push(odSubD(sub, (k/(N-1) - 0.5) * (w - pen)));
+    }
+    return out.join(' ');
+  }
+  async function downloadOverdrawSVG(){
+    const penMM = parseFloat(document.getElementById('penMM').value) || 0.3;
+    const docMM = 200, vb = 1072, pen = penMM * vb / docMM; // pen width in user units
+    const f = fileOf(recs[i].id);
+    const txt = await (await fetch('renders/' + f + '.svg')).text();
+    const doc = new DOMParser().parseFromString(txt, 'image/svg+xml');
+    const svg = doc.documentElement;
+    svg.setAttribute('width', docMM+'mm'); svg.setAttribute('height', docMM+'mm');
+    [...svg.children].forEach(el => { if (el.tagName === 'rect') el.remove(); });
+    [...svg.querySelectorAll('g')].forEach(g => {
+      const label = g.getAttribute('inkscape:label');
+      // keep Border + Signature as single-pass strokes; overdraw the rest
+      if (label !== 'Border' && label !== 'Signature'){
+        const groupW = parseFloat(g.getAttribute('stroke-width')) || 1;
+        [...g.querySelectorAll('path')].forEach(p => {
+          const w = parseFloat(p.getAttribute('stroke-width')) || groupW;
+          p.setAttribute('d', odPasses(p.getAttribute('d'), w, pen)); p.removeAttribute('stroke-width');
+        });
+      }
+      g.setAttribute('stroke-width', pen.toFixed(2)); // every pass drawn at the pen width
+    });
+    const out = '<?xml version="1.0" encoding="UTF-8"?>\n' + new XMLSerializer().serializeToString(svg);
+    const blob = new Blob([out], { type: 'image/svg+xml' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = f + '-overdraw.svg';
+    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
+  }
+  document.getElementById('prev').onclick = () => show(i-1);
+  document.getElementById('next').onclick = () => show(i+1);
+  document.getElementById('dlPng').onclick = downloadPNG;
+  document.getElementById('dlPlot').onclick = downloadPlotSVG;
+  document.getElementById('dlOver').onclick = downloadOverdrawSVG;
+  document.addEventListener('keydown', e => {
+    if (e.key==='ArrowLeft'){ show(i-1); e.preventDefault(); }
+    else if (e.key==='ArrowRight'){ show(i+1); e.preventDefault(); }
+  });
+
+  show(i);
+})();
+</script>
+</body>
+</html>
