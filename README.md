@@ -2,7 +2,7 @@
 
 **A homage to a homage** — generative mark-making after Frieder Nake's *Hommage à Paul Klee* (1965), after Paul Klee's *Highways and Byways* (1929).
 
-**[→ Live demo](https://lukaszlysakowski.github.io/field-script/)**
+**[→ Live maker](https://lukaszlysakowski.github.io/field-script/)**  ·  **[→ Specimen gallery](https://lukaszlysakowski.github.io/field-script/specimen.html)**
 
 ---
 
@@ -58,23 +58,44 @@ Thin semi-transparent connecting lines trace the pen's movement between marks �
 | View | Highways | Show / hide highway marks (same-seed redraw) |
 | — | Randomize | Randomize all parameters + new seed |
 | — | Refresh | New seed, keep current parameters |
-| — | SVG | Export — four Inkscape layers: Border / Highways / Segments / Threads |
+| — | SVG | Export — five Inkscape layers: Border / Highways / Segments / Threads / Signature |
 | — | PNG | Export raster |
 
 Click anywhere on the canvas to generate a new seed with current parameters.
 
 ---
 
+## Specimen & Canon
+
+Beyond the live maker, the project carries a **curated canon** — **130 compositions** selected from hundreds of seeds and organised into **14 archetypes** along a single axis: **waveLevel**, an openness dial running from the dense extreme (*Packed Manuscript*, waveLevel 0) through structured middle registers to the sparse extreme (*Open Gesture*, waveLevel 3).
+
+A static **specimen site** presents the collection:
+
+- **[specimen.html](https://lukaszlysakowski.github.io/field-script/specimen.html)** — the index: one exemplar card per archetype, plus the two axis extremes.
+- **theme.html** — a per-archetype gallery: browse every piece in a theme with prev/next (← / → keys) and a thumbnail strip.
+
+Each piece offers four downloads, all generated in the browser:
+
+| Download | What it is |
+|---|---|
+| **PNG** | The raster image as shown — lossless. |
+| **SVG** | Full vector with depth-scaled stroke weights and a single-line stroke-font signature. |
+| **Plot-ready SVG** | Pen-plotter–ready: background removed, layered by pen, stroke weights preserved (for width-aware tools such as DrawingBotV3 / vpype), sized in mm. |
+| **Overdraw SVG** | Weight baked into geometry — heavy strokes become multiple parallel pen passes, so a single-pen plotter physically draws them thicker (pen width selectable). |
+
+---
+
 ## SVG / Plotter Output
 
-The SVG export produces four Inkscape layers corresponding to natural pen-pass separations on a plotter:
+The SVG export produces five Inkscape layers corresponding to natural pen-pass separations on a plotter:
 
 1. **Border** — Registration frame
 2. **Highways** — Cross-strata vertical marks (heavier pen or separate pass)
 3. **Segments** — Field marks and glyph strokes
 4. **Threads** — Connecting trace lines (fine pen, reduced opacity)
+5. **Signature** — Single-line stroke caption (seed identifier)
 
-Each layer can be plotted independently, combined selectively, or used for multi-pen registration.
+Each layer can be plotted independently, combined selectively, or used for multi-pen registration. The specimen gallery additionally offers **plot-ready** (cleaned, weight-preserving) and **overdraw** (multi-pass thickness for single-pen plotters) variants of any piece — see [Specimen & Canon](#specimen--canon).
 
 ---
 
@@ -101,7 +122,9 @@ npx serve .
 python3 -m http.server 8080
 ```
 
-Then open `http://localhost:3000` (or whichever port).
+Then open `http://localhost:3000` (or whichever port) for the maker, or `/specimen.html` for the curated gallery.
+
+The `studies/` folder holds the grammar-analysis and waveLevel-exploration tooling used to derive the canon — reference material, not part of the live site.
 
 ---
 
