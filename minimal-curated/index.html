@@ -23,7 +23,11 @@ h1{font-size:46px;font-weight:600;letter-spacing:-0.01em;line-height:1;}
 figure{margin:0;background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:9px;}
 #grid img{width:100%;aspect-ratio:1;object-fit:cover;border:1px solid var(--line);background:#f0dfc0;display:block;border-radius:2px;cursor:zoom-in;transition:border-color .12s,transform .12s;}
 #grid img:hover{border-color:var(--accent);transform:translateY(-2px);}
-figcaption{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-top:7px;text-align:center;letter-spacing:.05em;}
+figcaption{display:flex;align-items:center;justify-content:center;gap:9px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-top:7px;letter-spacing:.05em;}
+.dlpng{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border:1px solid var(--line);border-radius:2px;background:transparent;color:var(--muted);cursor:pointer;transition:all .12s;}
+.dlpng:hover{border-color:var(--accent);color:var(--accent);}
+.lb .lbdl{margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:9px 24px;border:1px solid rgba(236,226,207,.5);border-radius:3px;background:transparent;color:var(--paper);cursor:pointer;transition:all .12s;}
+.lb .lbdl:hover{border-color:var(--paper);background:rgba(236,226,207,.1);}
 footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--muted);}
 .lb{position:fixed;inset:0;background:rgba(43,38,32,.9);display:none;align-items:center;justify-content:center;flex-direction:column;z-index:50;}
 .lb.open{display:flex;}
@@ -45,7 +49,7 @@ footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);font-fa
   <div class="tag">Field Script · selected grouping</div>
   <p class="lede">A hand-curated cut from the <b>Diverse · Minimal</b> study — the register of <b>range with restraint</b>: varied gestures (angle, growth, ground, marks) over wide negative space, never a packed field.</p>
   <div class="meta" id="meta">33 selected compositions · waveLevel 3 · varied frequency</div>
-  <div class="hint">Click any piece to enlarge · ‹ › or ← → to browse · Esc to close.</div>
+  <div class="hint">Click any piece to enlarge · ‹ › or ← → to browse · Esc to close · <b>png ↓</b> downloads a lossless PNG of any piece.</div>
 </header>
 <div class="grid" id="grid"></div>
 <footer>Field Script · minimal · curated set · 33 pieces</footer>
@@ -57,6 +61,7 @@ footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);font-fa
   <img id="lbImg" alt="">
   <div class="nav next" id="lbNext">›</div>
   <div class="cap" id="lbCap"></div>
+  <button class="lbdl" id="lbDl" type="button">Download PNG</button>
 </div>
 
 <script>
@@ -65,7 +70,7 @@ footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);font-fa
   for (let i = 0; i < N; i++){
     const kk = String(i).padStart(2,'0');
     const fig = document.createElement('figure');
-    fig.innerHTML = `<img src="k-${kk}.jpg" loading="lazy" alt="k-${kk}" data-i="${i}"><figcaption>k-${kk}</figcaption>`;
+    fig.innerHTML = `<img src="k-${kk}.jpg" loading="lazy" alt="k-${kk}" data-i="${i}"><figcaption><span>k-${kk}</span><button class="dlpng" data-kk="${kk}" type="button">png ↓</button></figcaption>`;
     grid.appendChild(fig);
   }
   const lb = document.getElementById('lb'), lbImg = document.getElementById('lbImg'), lbCap = document.getElementById('lbCap');
@@ -73,7 +78,25 @@ footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);font-fa
   function show(i){ cur = (i + N) % N; const kk = String(cur).padStart(2,'0'); lbImg.src = `k-${kk}.jpg`; lbCap.innerHTML = `<b>k-${kk}</b> · ${cur + 1} / ${N}`; }
   function openLb(i){ show(i); lb.classList.add('open'); }
   function closeLb(){ lb.classList.remove('open'); lbImg.src = ''; }
-  grid.addEventListener('click', e => { if (e.target.tagName === 'IMG') openLb(+e.target.dataset.i); });
+  grid.addEventListener('click', e => {
+    if (e.target.tagName === 'IMG') openLb(+e.target.dataset.i);
+    else if (e.target.classList.contains('dlpng')) downloadPNG(e.target.dataset.kk);
+  });
+  // PNG download: rasterize the JPG client-side (pixel-match to the displayed piece)
+  function downloadPNG(kk){
+    const im = new Image();
+    im.onload = () => {
+      const c = document.createElement('canvas'); c.width = im.naturalWidth; c.height = im.naturalHeight;
+      c.getContext('2d').drawImage(im, 0, 0);
+      c.toBlob(b => {
+        const a = document.createElement('a'); a.href = URL.createObjectURL(b);
+        a.download = 'field-script-minimal-' + kk + '.png';
+        document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
+      }, 'image/png');
+    };
+    im.src = 'k-' + kk + '.jpg';
+  }
+  document.getElementById('lbDl').onclick = () => downloadPNG(String(cur).padStart(2,'0'));
   document.getElementById('lbPrev').onclick = () => show(cur - 1);
   document.getElementById('lbNext').onclick = () => show(cur + 1);
   document.getElementById('lbClose').onclick = closeLb;
