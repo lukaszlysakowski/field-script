@@ -65,12 +65,12 @@ footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);font-fa
   for (let i = 0; i < N; i++){
     const kk = String(i).padStart(2,'0');
     const fig = document.createElement('figure');
-    fig.innerHTML = `<img src="minimal-keepers/k-${kk}.jpg" loading="lazy" alt="k-${kk}" data-i="${i}"><figcaption>k-${kk}</figcaption>`;
+    fig.innerHTML = `<img src="k-${kk}.jpg" loading="lazy" alt="k-${kk}" data-i="${i}"><figcaption>k-${kk}</figcaption>`;
     grid.appendChild(fig);
   }
   const lb = document.getElementById('lb'), lbImg = document.getElementById('lbImg'), lbCap = document.getElementById('lbCap');
   let cur = 0;
-  function show(i){ cur = (i + N) % N; const kk = String(cur).padStart(2,'0'); lbImg.src = `minimal-keepers/k-${kk}.jpg`; lbCap.innerHTML = `<b>k-${kk}</b> · ${cur + 1} / ${N}`; }
+  function show(i){ cur = (i + N) % N; const kk = String(cur).padStart(2,'0'); lbImg.src = `k-${kk}.jpg`; lbCap.innerHTML = `<b>k-${kk}</b> · ${cur + 1} / ${N}`; }
   function openLb(i){ show(i); lb.classList.add('open'); }
   function closeLb(){ lb.classList.remove('open'); lbImg.src = ''; }
   grid.addEventListener('click', e => { if (e.target.tagName === 'IMG') openLb(+e.target.dataset.i); });
