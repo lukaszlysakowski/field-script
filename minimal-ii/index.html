@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Field Script — Diverse · Minimal II</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#ece2cf;--panel:#f6efe0;--ink:#2b2620;--muted:#8a7c66;--accent:#7a5c3c;--line:#d4c7ad;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:'Fraunces',Georgia,serif;line-height:1.5;padding:48px 56px 88px;}
+.wrap{max-width:1280px;margin:0 auto;}
+header{border-bottom:2px solid var(--ink);padding-bottom:22px;margin-bottom:8px;}
+h1{font-size:46px;font-weight:600;letter-spacing:-0.01em;line-height:1;}
+.tag{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-top:12px;}
+.lede{font-size:15px;max-width:66ch;margin-top:16px;color:#473f33;}
+.lede b{font-weight:600;}
+.meta{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-top:14px;letter-spacing:.04em;}
+.hint{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-top:8px;letter-spacing:.04em;}
+.hint b{color:var(--accent);font-weight:400;}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px 20px;margin-top:30px;}
+figure{margin:0;background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:9px;}
+#grid img{width:100%;aspect-ratio:1;object-fit:cover;border:1px solid var(--line);background:#f0dfc0;display:block;border-radius:2px;cursor:zoom-in;transition:border-color .12s,transform .12s;}
+#grid img:hover{border-color:var(--accent);transform:translateY(-2px);}
+figcaption{display:flex;flex-direction:column;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-top:8px;letter-spacing:.05em;}
+.dls{display:flex;gap:6px;}
+.dl{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border:1px solid var(--line);border-radius:2px;background:transparent;color:var(--muted);cursor:pointer;transition:all .12s;}
+.dl:hover{border-color:var(--accent);color:var(--accent);}
+footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--muted);}
+.lb{position:fixed;inset:0;background:rgba(43,38,32,.92);display:none;align-items:center;justify-content:center;flex-direction:column;z-index:50;}
+.lb.open{display:flex;}
+.lb img{max-width:84vw;max-height:74vh;object-fit:contain;border:1px solid var(--line);background:#f0dfc0;box-shadow:0 12px 50px rgba(0,0,0,.45);}
+.lb .cap{color:var(--paper);font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.08em;margin-top:14px;}
+.lb .cap b{color:#e7c9a0;font-weight:400;}
+.lb .acts{display:flex;gap:12px;margin-top:14px;align-items:center;}
+.lb .lbbtn{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:8px 18px;border:1px solid rgba(236,226,207,.5);border-radius:3px;background:transparent;color:var(--paper);cursor:pointer;transition:all .12s;}
+.lb .lbbtn:hover{border-color:var(--paper);background:rgba(236,226,207,.1);}
+.lb .nav{position:absolute;top:64px;bottom:0;width:15%;cursor:pointer;display:flex;align-items:center;color:rgba(236,226,207,.45);font-size:44px;font-family:'Fraunces',serif;user-select:none;transition:color .12s;z-index:1;}
+.lb .nav:hover{color:var(--paper);}
+.lb .prev{left:0;justify-content:flex-start;padding-left:26px;}
+.lb .next{right:0;justify-content:flex-end;padding-right:26px;}
+.lb .close{position:absolute;top:14px;right:22px;color:rgba(236,226,207,.7);font-size:22px;cursor:pointer;font-family:'JetBrains Mono',monospace;z-index:5;padding:8px 12px;}
+.lb .close:hover{color:var(--paper);}
+@media(max-width:880px){.grid{grid-template-columns:repeat(2,1fr)}body{padding:32px 18px}h1{font-size:32px}.lb .nav{width:22%}}
+</style>
+</head>
+<body><div class="wrap">
+<header>
+  <h1>Diverse · Minimal II</h1>
+  <div class="tag">Field Script · curated set</div>
+  <p class="lede">A hand-curated cut from the second <b>Diverse · Minimal</b> study — wave-driven <b>range with restraint</b>: varied gestures over open negative space. Unlike the first cut, every piece here was generated with its <b>parameters saved</b>, so each is a real, reproducible vector and exports three ways.</p>
+  <div class="meta" id="meta">48 selected compositions · waveLevel 3 · varied frequency · params in manifest.json</div>
+  <div class="hint">Click any piece to enlarge · ‹ › or ← → to browse · Esc to close · each piece downloads as <b>png · svg · plot</b> (lossless raster · 5-layer signed vector · plot-ready 200&nbsp;mm).</div>
+</header>
+<div class="grid" id="grid"></div>
+<footer>Field Script · diverse · minimal II · 48 pieces · png / svg / plot-ready</footer>
+</div>
+
+<div class="lb" id="lb">
+  <div class="close" id="lbClose">✕ close</div>
+  <div class="nav prev" id="lbPrev">‹</div>
+  <img id="lbImg" alt="">
+  <div class="nav next" id="lbNext">›</div>
+  <div class="cap" id="lbCap"></div>
+  <div class="acts">
+    <button class="lbbtn" data-t="png" type="button">PNG</button>
+    <button class="lbbtn" data-t="svg" type="button">SVG</button>
+    <button class="lbbtn" data-t="plot" type="button">Plot-ready</button>
+  </div>
+</div>
+
+<script>
+  const N = 48;
+  const idOf = i => 'k-' + String(i).padStart(2,'0');
+  const grid = document.getElementById('grid');
+  for (let i = 0; i < N; i++){
+    const id = idOf(i);
+    const fig = document.createElement('figure');
+    fig.innerHTML =
+      `<img src="${id}.jpg" loading="lazy" alt="${id}" data-i="${i}">` +
+      `<figcaption><span>${id}</span>` +
+        `<div class="dls"><button class="dl" data-t="png" data-i="${i}" type="button">png</button>` +
+        `<button class="dl" data-t="svg" data-i="${i}" type="button">svg</button>` +
+        `<button class="dl" data-t="plot" data-i="${i}" type="button">plot</button></div>` +
+      `</figcaption>`;
+    grid.appendChild(fig);
+  }
+
+  // ── downloads ──────────────────────────────────────────────
+  function saveBlob(content, mime, filename){
+    const b = content instanceof Blob ? content : new Blob([content], {type:mime});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(b);
+    a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(a.href);
+  }
+  function pngFromJpg(id){
+    return new Promise(res => {
+      const im = new Image();
+      im.onload = () => { const c = document.createElement('canvas'); c.width = im.naturalWidth; c.height = im.naturalHeight;
+        c.getContext('2d').drawImage(im, 0, 0); c.toBlob(b => res(b), 'image/png'); };
+      im.src = id + '.jpg';
+    });
+  }
+  // plot-ready: drop painted background + signature layer, size to 200mm for the plotter
+  function plotReady(svgText){
+    const doc = new DOMParser().parseFromString(svgText, 'image/svg+xml');
+    const svg = doc.documentElement;
+    svg.querySelectorAll(':scope > rect').forEach(r => r.remove());
+    doc.querySelectorAll('g').forEach(g => { if (g.getAttribute('inkscape:label') === 'Signature') g.remove(); });
+    svg.setAttribute('width', '200mm'); svg.setAttribute('height', '200mm');
+    return '<?xml version="1.0" encoding="UTF-8"?>\n' + new XMLSerializer().serializeToString(svg);
+  }
+  async function download(type, i){
+    const id = idOf(i), stem = 'field-script-minimal-ii-' + String(i).padStart(2,'0');
+    if (type === 'png'){ saveBlob(await pngFromJpg(id), 'image/png', stem + '.png'); }
+    else if (type === 'svg'){ const t = await (await fetch(id + '.svg')).text(); saveBlob(t, 'image/svg+xml', stem + '.svg'); }
+    else if (type === 'plot'){ const t = await (await fetch(id + '.svg')).text(); saveBlob(plotReady(t), 'image/svg+xml', stem + '-plot.svg'); }
+  }
+
+  // ── lightbox ───────────────────────────────────────────────
+  const lb = document.getElementById('lb'), lbImg = document.getElementById('lbImg'), lbCap = document.getElementById('lbCap');
+  let cur = 0;
+  function show(i){ cur = (i + N) % N; const id = idOf(cur); lbImg.src = `${id}.jpg`; lbCap.innerHTML = `<b>${id}</b> · ${cur + 1} / ${N}`; }
+  function openLb(i){ show(i); lb.classList.add('open'); }
+  function closeLb(){ lb.classList.remove('open'); lbImg.src = ''; }
+
+  grid.addEventListener('click', e => {
+    const t = e.target;
+    if (t.tagName === 'IMG') openLb(+t.dataset.i);
+    else if (t.classList.contains('dl')) download(t.dataset.t, +t.dataset.i);
+  });
+  document.querySelectorAll('.lb .lbbtn[data-t]').forEach(b => b.onclick = () => download(b.dataset.t, cur));
+  document.getElementById('lbPrev').onclick = () => show(cur - 1);
+  document.getElementById('lbNext').onclick = () => show(cur + 1);
+  document.getElementById('lbClose').onclick = closeLb;
+  lb.addEventListener('click', e => { if (e.target === lb) closeLb(); });
+  document.addEventListener('keydown', e => {
+    if (!lb.classList.contains('open')) return;
+    if (e.key === 'ArrowLeft'){ show(cur - 1); e.preventDefault(); }
+    else if (e.key === 'ArrowRight'){ show(cur + 1); e.preventDefault(); }
+    else if (e.key === 'Escape') closeLb();
+  });
+</script>
+</body>
+</html>
