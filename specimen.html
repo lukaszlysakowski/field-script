@@ -34,6 +34,13 @@ h1{font-size:54px;font-weight:600;letter-spacing:-0.01em;line-height:1;}
 .adesc{font-size:13.5px;color:#52493b;margin-top:3px;line-height:1.4;}
 .card.big .adesc{font-size:15px;}
 .viewlink{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em;color:var(--accent);margin-top:10px;}
+.card.feature{padding:16px;}
+.feature-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.feature-strip img{border-radius:2px;}
+.feature-body{margin-top:16px;}
+.card.feature .aname{font-size:26px;}
+.card.feature .adesc{font-size:15px;max-width:74ch;}
+@media(max-width:880px){.feature-strip{grid-template-columns:repeat(2,1fr)}}
 footer{margin-top:56px;padding-top:18px;border-top:1px solid var(--line);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--muted);display:flex;justify-content:space-between;}
 @media(max-width:880px){.grid{grid-template-columns:repeat(2,1fr)}.grid.extremes{grid-template-columns:1fr}body{padding:40px 26px}h1{font-size:40px}}
 </style>
@@ -54,6 +61,20 @@ footer{margin-top:56px;padding-top:18px;border-top:1px solid var(--line);font-fa
 <div class="grid" id="structGrid"></div>
 <div class="sec">Axis Extremes</div>
 <div class="grid extremes" id="extremeGrid"></div>
+<div class="sec">Curated Collection</div>
+<a class="card feature" href="minimal-ii/">
+  <div class="feature-strip">
+    <img src="minimal-ii/k-00.jpg" loading="lazy" alt="Diverse · Minimal II — k-00">
+    <img src="minimal-ii/k-02.jpg" loading="lazy" alt="Diverse · Minimal II — k-02">
+    <img src="minimal-ii/k-07.jpg" loading="lazy" alt="Diverse · Minimal II — k-07">
+    <img src="minimal-ii/k-11.jpg" loading="lazy" alt="Diverse · Minimal II — k-11">
+  </div>
+  <div class="feature-body">
+    <div class="aname-row"><span class="aname">Diverse · Minimal II</span><span class="acount">48 pieces</span></div>
+    <div class="adesc">A hand-curated set drawn from the sparse, gestural end of the axis — <b>range with restraint</b>: varied gestures over open negative space. Every piece was generated with its parameters saved, so each is a reproducible vector that exports three ways — <b>PNG</b>, <b>SVG</b>, and <b>plot-ready SVG</b>.</div>
+    <div class="viewlink">Open the collection →</div>
+  </div>
+</a>
 <footer><span>Field Script · generative mark-making</span><span>lukaszgraphz – 06.2026</span><span>CC BY-NC-ND · <span id="yr"></span></span></footer>
 </div>
 
