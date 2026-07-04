@@ -72,7 +72,7 @@ Beyond the live maker, the project carries a **curated canon** — **130 composi
 A static **specimen site** presents the collection:
 
 - **[specimen.html](https://lukaszlysakowski.github.io/field-script/specimen.html)** — the index: one exemplar card per archetype, plus the two axis extremes.
-- **theme.html** — a per-archetype gallery: browse every piece in a theme with prev/next (← / → keys) and a thumbnail strip.
+- **[theme.html](https://lukaszlysakowski.github.io/field-script/theme.html)** — a per-archetype gallery: browse every piece in a theme with prev/next (← / → keys) and a thumbnail strip.
 
 Two standalone **curated collections** sit alongside the canon:
 
