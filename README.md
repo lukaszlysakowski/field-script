@@ -74,6 +74,11 @@ A static **specimen site** presents the collection:
 - **[specimen.html](https://lukaszlysakowski.github.io/field-script/specimen.html)** — the index: one exemplar card per archetype, plus the two axis extremes.
 - **theme.html** — a per-archetype gallery: browse every piece in a theme with prev/next (← / → keys) and a thumbnail strip.
 
+Two standalone **curated collections** sit alongside the canon:
+
+- **[Diverse · Minimal II](https://lukaszlysakowski.github.io/field-script/minimal-ii/)** — 48 pieces exploring the sparse register across diverse parameter territories.
+- **[Minimal · Curated Set](https://lukaszlysakowski.github.io/field-script/minimal-curated/)** — 33 pieces; the original minimal selection, with per-piece PNG downloads.
+
 Each piece offers four downloads, all generated in the browser:
 
 | Download | What it is |
